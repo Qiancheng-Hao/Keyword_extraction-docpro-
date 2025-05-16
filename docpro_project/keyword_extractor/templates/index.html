@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en" x-data="app">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Keyword Extractor</title>
+  <script src="https://unpkg.com/alpinejs " defer></script>
+  <script src="https://cdn.tailwindcss.com "></script>
+  <style>
+    [x-cloak] { display: none !important; }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-900 antialiased min-h-screen flex flex-col transition-colors duration-300">
+  <!-- Header -->
+  <header class="bg-white shadow-sm dark:bg-gray-800 dark:text-white">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+      <h1 class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">AI Keyword Extractor</h1>
+      <button @click="darkMode = !darkMode" class="p-2 rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 transition">
+        <svg x-show="!darkMode" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" />
+        </svg>
+        <svg x-show="darkMode" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-grow flex flex-col md:flex-row gap-6 p-4 max-w-6xl mx-auto w-full">
+    <!-- Input Section -->
+    <section class="w-full md:w-1/2 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 space-y-4 transition-all">
+      <h2 class="text-lg font-semibold dark:text-white">Enter Text</h2>
+      <textarea
+        x-model="text"
+        placeholder="Paste your text here..."
+        rows="6"
+        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white transition"
+      ></textarea>
+
+      <!-- Drag-and-Drop Upload -->
+      <div class="mt-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition" @drop.prevent="handleFileDrop($event)" @dragover.prevent>
+        <p class="text-sm text-gray-500 dark:text-gray-300">Drag and drop a text file here, or click to select</p>
+        <input type="file" accept=".txt,.docx,.pdf" @change="handleFileUpload($event)" class="hidden">
+      </div>
+
+      <!-- Settings -->
+      <div class="mt-4 flex items-center gap-4">
+        <label class="text-sm font-medium dark:text-gray-300">Keywords:</label>
+        <input type="number" x-model.number="numKeywords" min="1" max="50" class="w-16 px-2 py-1 border border-gray-300 dark:border-gray-600 rounded dark:bg-gray-700 dark:text-white">
+      </div>
+
+      <!-- Sample Button -->
+      <button @click="text = 'Artificial intelligence is a wonderful field that combines computer science and statistics to create intelligent systems.'" class="mt-2 text-sm text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300">
+        Use Sample Text
+      </button>
+
+      <!-- Extract Button -->
+      <button @click="extractKeywords()" class="mt-4 px-6 py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition">
+        Extract Keywords
+      </button>
+    </section>
+
+    <!-- Results Section -->
+    <section class="w-full md:w-1/2 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 transition-all">
+      <h2 class="text-lg font-semibold dark:text-white mb-4">Extracted Keywords</h2>
+      <div x-show="keywords.length === 0" class="text-center py-8 text-gray-500 dark:text-gray-400">
+        Keywords will appear here
+      </div>
+      <ul x-show="keywords.length > 0" class="grid grid-cols-1 sm:grid-cols-2 gap-2 p-2">
+        <template x-for="keyword in keywords" :key="keyword">
+          <li class="px-3 py-2 bg-indigo-50 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-200 rounded-md">
+            <span x-text="keyword"></span>
+          </li>
+        </template>
+      </ul>
+      <div x-show="keywords.length > 0" class="mt-4 flex justify-end">
+        <button @click="copyKeywords()" class="px-4 py-2 bg-green-100 text-green-700 dark:bg-green-800 dark:text-green-200 rounded hover:bg-green-200 dark:hover:bg-green-700 transition">
+          Copy Keywords
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <!-- History Panel -->
+  <section class="max-w-6xl mx-auto w-full px-4 mb-6">
+    <h3 class="text-sm font-medium dark:text-white mb-2">Recent Inputs</h3>
+    <div class="flex flex-wrap gap-2">
+      <template x-for="item in history" :key="item.text">
+        <button @click="text = item.text" class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-xs rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition">
+          <span x-text="item.text.slice(0, 20) + (item.text.length > 20 ? '...' : '')"></span>
+        </button>
+      </template>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-white dark:bg-gray-800 shadow-inner py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+    AI Keyword Extractor • Built with Django + Alpine.js
+  </footer>
+
+  <!-- Scripts -->
+  <script>
+    document.addEventListener('alpine:init', () => {
+      Alpine.data('app', () => ({
+        keywords: [],
+        text: '',
+        numKeywords: 10,
+        history: JSON.parse(localStorage.getItem('history') || '[]'),
+        darkMode: false,
+
+        // Extract Keywords
+        extractKeywords() {
+          const csrftoken = this.getCookie("csrftoken");
+
+          fetch("http://127.0.0.1:8000/api/extract_keywords/", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": csrftoken
+            },
+            body: JSON.stringify({ text: this.text, num_keywords: this.numKeywords })
+          })
+          .then(res => res.json())
+          .then(data => {
+            this.keywords = data.keywords;
+          })
+          .catch(err => {
+            alert("API Error: " + err.message);
+          });
+        },
+
+        // Copy to Clipboard
+        copyKeywords() {
+          navigator.clipboard.writeText(this.keywords.join(', '))
+            .then(() => alert('Keywords copied to clipboard!'))
+            .catch(err => alert("Failed to copy: " + err));
+        },
+
+        // File Upload
+        handleFileUpload(event) {
+          const file = event.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = (e) => this.text = e.target.result;
+          reader.readAsText(file);
+        },
+
+        // Drag-and-Drop Upload
+        handleFileDrop(event) {
+          const file = event.dataTransfer.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = (e) => this.text = e.target.result;
+          reader.readAsText(file);
+        },
+
+        // Get Cookie
+        getCookie(name) {
+          const value = `; ${document.cookie}`;
+          const parts = value.split(`; ${name}=`);
+          return parts.length === 2 ? parts.pop().split(';').shift() : null;
+        }
+      }));
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!--&lt;!&ndash; templates/index.html &ndash;&gt;-->
+<!--<!DOCTYPE html>-->
+<!--<html lang="en">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <title>Keyword Extractor</title>-->
+<!--    <style>-->
+<!--        body { font-family: Arial; padding: 20px; }-->
+<!--        textarea { width: 100%; height: 200px; }-->
+<!--        .keywords { margin-top: 20px; padding: 10px; background: #f0f0f0; }-->
+<!--    </style>-->
+<!--</head>-->
+<!--<body>-->
+<!--    <h1>Keyword Extractor</h1>-->
+<!--    <form id="keywordForm">-->
+<!--        <label for="text">Enter Text:</label><br>-->
+<!--        <textarea id="text" name="text" required></textarea><br><br>-->
+<!--        <label for="num_keywords">Number of Keywords:</label>-->
+<!--        <input type="number" id="num_keywords" name="num_keywords" value="10" min="1" max="50"><br><br>-->
+<!--        <button type="submit">Extract Keywords</button>-->
+<!--    </form>-->
+
+<!--    <div class="keywords" id="output" style="display:none;">-->
+<!--        <h2>Keywords:</h2>-->
+<!--        <ul id="keywordsList"></ul>-->
+<!--    </div>-->
+
+<!--    <script>-->
+<!--        document.getElementById("keywordForm").addEventListener("submit", function(e) {-->
+<!--            e.preventDefault();-->
+<!--            const text = document.getElementById("text").value;-->
+<!--            const numKeywords = parseInt(document.getElementById("num_keywords").value);-->
+
+<!--            fetch("http://127.0.0.1:8000/api/extract_keywords/", {-->
+<!--                method: "POST",-->
+<!--                headers: { "Content-Type": "application/json" },-->
+<!--                body: JSON.stringify({ text: text, num_keywords: numKeywords })-->
+<!--            })-->
+<!--            .then(response => response.json())-->
+<!--            .then(data => {-->
+<!--                const list = document.getElementById("keywordsList");-->
+<!--                list.innerHTML = "";-->
+<!--                data.keywords.forEach(keyword => {-->
+<!--                    const li = document.createElement("li");-->
+<!--                    li.textContent = keyword;-->
+<!--                    list.appendChild(li);-->
+<!--                });-->
+<!--                document.getElementById("output").style.display = "block";-->
+<!--            })-->
+<!--            .catch(error => {-->
+<!--                alert("Error fetching keywords: " + error);-->
+<!--            });-->
+<!--        });-->
+<!--    </script>-->
+<!--</body>-->
+<!--</html>-->
